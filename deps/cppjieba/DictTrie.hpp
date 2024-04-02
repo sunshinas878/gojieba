@@ -118,10 +118,13 @@ class DictTrie {
                 user_word_default_weight_,
                 UNKNOWN_TAG);
         } else if (buf.size() == 2) {
+          int freq = atoi(buf[1].c_str());
+          assert(freq_sum_ > 0.0);
+          double weight = log(1.0 * freq / freq_sum_);
           MakeNodeInfo(node_info, 
                 buf[0], 
-                user_word_default_weight_,
-                buf[1]);
+                weight,
+                UNKNOWN_TAG);
         } else if (buf.size() == 3) {
           int freq = atoi(buf[1].c_str());
           assert(freq_sum_ > 0.0);
