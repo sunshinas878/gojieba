@@ -4,6 +4,10 @@ extern "C" {
 
 #include "cppjieba/Jieba.hpp"
 
+#include <iostream>
+#include <sstream>
+#include <string>
+
 static char** ConvertWords(const std::vector<std::string>& words) {
   char ** res = (char**)malloc(sizeof(char*) * (words.size() + 1));
   for (size_t i = 0; i < words.size(); i++) {
@@ -42,6 +46,19 @@ Jieba NewJieba(const char* dict_path,
       const char* idf_path,
       const char* stop_words_path) {
   return (Jieba)(new cppjieba::Jieba(dict_path, hmm_path, user_dict, idf_path, stop_words_path));
+}
+
+Jieba NewJiebaWithContent(const char* dict_content,
+      const char* hmm_content,
+      const char* user_content,
+      const char* idf_content,
+      const char* stop_words_content) {
+      std::stringstream dict_ss(dict_content);
+      std::stringstream hmm_ss(hmm_content);
+      std::stringstream user_ss(user_content);
+      std::stringstream idf_ss(idf_content);
+      std::stringstream stop_words_ss(stop_words_content);
+  return (Jieba)(new cppjieba::Jieba(dict_ss, hmm_ss, user_ss, idf_ss, stop_words_ss));
 }
 
 void FreeJieba(Jieba x) {
@@ -126,4 +143,8 @@ char** Extract(Jieba handle, const char* sentence, int top_k) {
   ((cppjieba::Jieba*)handle)->extractor.Extract(sentence, words, top_k);
   char** res = ConvertWords(words);
   return res;
+}
+
+void printStr(const char *str) {
+    std::cout<< "we get :" << str << std::endl;
 }

@@ -36,6 +36,14 @@ class KeywordExtractor {
     LoadIdfDict(idfPath);
     LoadStopWordDict(stopWordPath);
   }
+  KeywordExtractor(const DictTrie* dictTrie, 
+        const HMMModel* model,
+        stringstream& idfSs, 
+        stringstream& stopWordSs) 
+    : segment_(dictTrie, model) {
+    LoadIdfDictByIS(idfSs);
+    LoadStopWordDictByIS(stopWordSs);
+  }
   ~KeywordExtractor() {
   }
 
@@ -95,12 +103,16 @@ class KeywordExtractor {
   void LoadIdfDict(const string& idfPath) {
     ifstream ifs(idfPath.c_str());
     XCHECK(ifs.is_open()) << "open " << idfPath << " failed";
+    LoadIdfDictByIS(ifs);
+  }
+
+  void LoadIdfDictByIS(istream & is) {
     string line ;
     vector<string> buf;
     double idf = 0.0;
     double idfSum = 0.0;
     size_t lineno = 0;
-    for (; getline(ifs, line); lineno++) {
+    for (; getline(is, line); lineno++) {
       buf.clear();
       if (line.empty()) {
         XLOG(ERROR) << "lineno: " << lineno << " empty. skipped.";
@@ -121,15 +133,21 @@ class KeywordExtractor {
     idfAverage_ = idfSum / lineno;
     assert(idfAverage_ > 0.0);
   }
+
   void LoadStopWordDict(const string& filePath) {
     ifstream ifs(filePath.c_str());
     XCHECK(ifs.is_open()) << "open " << filePath << " failed";
-    string line ;
-    while (getline(ifs, line)) {
+    LoadStopWordDictByIS(ifs);
+  }
+
+  void LoadStopWordDictByIS(istream & is) {
+    string line;
+    while (getline(is, line)) {
       stopWords_.insert(line);
     }
     assert(stopWords_.size());
   }
+
 
   static bool Compare(const Word& lhs, const Word& rhs) {
     return lhs.weight > rhs.weight;

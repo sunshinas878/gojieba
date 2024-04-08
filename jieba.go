@@ -1,3 +1,4 @@
+//go:generate go-bindata -o=./dict/bindata.go -pkg=dict ./dict/
 package gojieba
 
 /*
@@ -7,8 +8,11 @@ package gojieba
 */
 import "C"
 import (
+	"os"
 	"runtime"
 	"unsafe"
+
+	"github.com/sunshinas878/gojieba/dict"
 )
 
 type TokenizeMode int
@@ -38,6 +42,37 @@ func NewJieba(paths ...string) *Jieba {
 	defer C.free(unsafe.Pointer(spath))
 	jieba := &Jieba{
 		C.NewJieba(
+			dpath,
+			hpath,
+			upath,
+			ipath,
+			spath,
+		),
+	}
+	runtime.SetFinalizer(jieba, (*Jieba).Free)
+	return jieba
+}
+
+func NewJiebaWithContent(userDictPath string) *Jieba {
+
+	dpath := C.CString(dict.MustAssetString("./dict/jieba.dict.utf8"))
+	hpath := C.CString(dict.MustAssetString("./dict/hmm_model.utf8"))
+	upath := C.CString("")
+	if len(userDictPath) == 0 {
+		upath = C.CString(dict.MustAssetString("./dict/user.dict.utf8"))
+	} else {
+		upath = C.CString(loadFile2String(userDictPath))
+	}
+	ipath := C.CString(dict.MustAssetString("./dict/idf.utf8"))
+	spath := C.CString(dict.MustAssetString("./dict/stop_words.utf8"))
+
+	defer C.free(unsafe.Pointer(dpath))
+	defer C.free(unsafe.Pointer(hpath))
+	defer C.free(unsafe.Pointer(upath))
+	defer C.free(unsafe.Pointer(ipath))
+	defer C.free(unsafe.Pointer(spath))
+	jieba := &Jieba{
+		C.NewJiebaWithContent(
 			dpath,
 			hpath,
 			upath,
@@ -165,4 +200,27 @@ func cwordweights(x *C.struct_CWordWeight) []WordWeight {
 		x = (*C.struct_CWordWeight)(unsafe.Pointer(uintptr(unsafe.Pointer(x)) + eltSize))
 	}
 	return s
+}
+
+func loadFile(filepath string) []byte {
+	buf, err := os.ReadFile(filepath)
+	if err != nil {
+		return nil
+	}
+	return buf
+}
+
+func loadFile2String(filepath string) string {
+	buf, err := os.ReadFile(filepath)
+	if err != nil {
+		return ""
+	}
+	return string(buf)
+}
+
+func loadByBytes(filepath string) {
+	buf := loadFile(filepath)
+	cstr := C.CString(string(buf))
+	defer C.free(unsafe.Pointer(cstr))
+	C.printStr(cstr)
 }

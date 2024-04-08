@@ -22,6 +22,22 @@ class Jieba {
       query_seg_(&dict_trie_, &model_),
       extractor(&dict_trie_, &model_, idfPath, stopWordPath) {
   }
+
+  Jieba( stringstream& dict_content,
+         stringstream& model_content,
+         stringstream& user_dict_content,
+         stringstream& idf_content,
+         stringstream& stop_word_content)
+    : dict_trie_(dict_content, user_dict_content),
+      model_(model_content),
+      mp_seg_(&dict_trie_),
+      hmm_seg_(&model_),
+      mix_seg_(&dict_trie_, &model_),
+      full_seg_(&dict_trie_),
+      query_seg_(&dict_trie_, &model_),
+      extractor(&dict_trie_, &model_, idf_content, stop_word_content) {}
+
+
   ~Jieba() {
   }
 

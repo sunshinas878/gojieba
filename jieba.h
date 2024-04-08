@@ -2,6 +2,7 @@
 #define CJIEBA_JIEBA_H
 
 #include <stdlib.h>
+
 #include "util.h"
 
 typedef void* Jieba;
@@ -18,6 +19,12 @@ typedef enum {
 
 Jieba NewJieba(const char* dict_path,
       const char* hmm_path, 
+      const char* user_dict,
+      const char* idf_path,
+      const char* stop_words_path);
+
+Jieba NewJiebaWithContent(const char* dict_path,
+      const char* hmm_path,
       const char* user_dict,
       const char* idf_path,
       const char* stop_words_path);
@@ -42,4 +49,5 @@ char** Extract(Jieba handle, const char* sentence, int top_k);
 struct CWordWeight* ExtractWithWeight(Jieba handle, const char* sentence, int top_k);
 void FreeWordWeights(struct CWordWeight* wws);
 
+void printStr(const char *str);
 #endif // CJIEBA_JIEBA_H

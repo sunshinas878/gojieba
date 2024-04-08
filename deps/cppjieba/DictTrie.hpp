@@ -35,6 +35,9 @@ class DictTrie {
   DictTrie(const string& dict_path, const string& user_dict_paths = "", UserWordWeightOption user_word_weight_opt = WordWeightMedian) {
     Init(dict_path, user_dict_paths, user_word_weight_opt);
   }
+  DictTrie(stringstream& dict_ss, stringstream& user_dict_ss, UserWordWeightOption user_word_weight_opt = WordWeightMedian) {
+    Init(dict_ss, user_dict_ss, user_word_weight_opt);
+  }
 
   ~DictTrie() {
     delete trie_;
@@ -152,19 +155,30 @@ class DictTrie {
 
   void LoadUserDict(const string& filePaths) {
     vector<string> files = limonp::Split(filePaths, "|;");
-    size_t lineno = 0;
+
     for (size_t i = 0; i < files.size(); i++) {
       ifstream ifs(files[i].c_str());
       XCHECK(ifs.is_open()) << "open " << files[i] << " failed"; 
       string line;
       
-      for (; getline(ifs, line); lineno++) {
+      for (; getline(ifs, line);) {
         if (line.size() == 0) {
           continue;
         }
         InserUserDictNode(line);
       }
     }
+  }
+  void LoadUserDictByIS(istream& is) {
+
+    string line;
+    for (; getline(is, line);) {
+      if (line.size() == 0) {
+        continue;
+      }
+      InserUserDictNode(line);
+    }
+
   }
 
 
@@ -181,6 +195,18 @@ class DictTrie {
     Shrink(static_node_infos_);
     CreateTrie(static_node_infos_);
   }
+  void Init( stringstream& dict_ss,  stringstream& user_dict_ss, UserWordWeightOption user_word_weight_opt) {
+      LoadDictByIS(dict_ss);
+      freq_sum_ = CalcFreqSum(static_node_infos_);
+      CalculateWeight(static_node_infos_, freq_sum_);
+      SetStaticWordWeights(user_word_weight_opt);
+
+
+      LoadUserDictByIS(user_dict_ss);
+
+      Shrink(static_node_infos_);
+      CreateTrie(static_node_infos_);
+    }
   
   void CreateTrie(const vector<DictUnit>& dictUnits) {
     assert(dictUnits.size());
@@ -213,20 +239,25 @@ class DictTrie {
   void LoadDict(const string& filePath) {
     ifstream ifs(filePath.c_str());
     XCHECK(ifs.is_open()) << "open " << filePath << " failed.";
-    string line;
-    vector<string> buf;
-
-    DictUnit node_info;
-    for (size_t lineno = 0; getline(ifs, line); lineno++) {
-      Split(line, buf, " ");
-      XCHECK(buf.size() == DICT_COLUMN_NUM) << "split result illegal, line:" << line;
-      MakeNodeInfo(node_info, 
-            buf[0], 
-            atof(buf[1].c_str()), 
-            buf[2]);
-      static_node_infos_.push_back(node_info);
-    }
+    LoadDictByIS(ifs);
   }
+
+  void LoadDictByIS( istream& is) {
+
+      string line;
+      vector<string> buf;
+
+      DictUnit node_info;
+      for (; getline(is, line); ) {
+        Split(line, buf, " ");
+        XCHECK(buf.size() == DICT_COLUMN_NUM) << "split result illegal, line:" << line;
+        MakeNodeInfo(node_info,
+              buf[0],
+              atof(buf[1].c_str()),
+              buf[2]);
+        static_node_infos_.push_back(node_info);
+      }
+    }
 
   static bool WeightCompare(const DictUnit& lhs, const DictUnit& rhs) {
     return lhs.weight < rhs.weight;
