@@ -55,16 +55,16 @@ func NewJieba(paths ...string) *Jieba {
 
 func NewJiebaWithContent(userDictPath string) *Jieba {
 
-	dpath := C.CString(dict.MustAssetString("./dict/jieba.dict.utf8"))
-	hpath := C.CString(dict.MustAssetString("./dict/hmm_model.utf8"))
+	dpath := C.CString(dict.MustAssetString("dict/jieba.dict.utf8"))
+	hpath := C.CString(dict.MustAssetString("dict/hmm_model.utf8"))
 	upath := C.CString("")
 	if len(userDictPath) == 0 {
-		upath = C.CString(dict.MustAssetString("./dict/user.dict.utf8"))
+		upath = C.CString(dict.MustAssetString("dict/user.dict.utf8"))
 	} else {
 		upath = C.CString(loadFile2String(userDictPath))
 	}
-	ipath := C.CString(dict.MustAssetString("./dict/idf.utf8"))
-	spath := C.CString(dict.MustAssetString("./dict/stop_words.utf8"))
+	ipath := C.CString(dict.MustAssetString("dict/idf.utf8"))
+	spath := C.CString(dict.MustAssetString("dict/stop_words.utf8"))
 
 	defer C.free(unsafe.Pointer(dpath))
 	defer C.free(unsafe.Pointer(hpath))

@@ -157,10 +157,10 @@ func TestJieba(t *testing.T) {
 	s = "长春市长春药店"
 	wordinfos := x.Tokenize(s, SearchMode, false)
 	expectedwords := []Word{
-		Word{Str: "长春", Start: 0, End: 6},
-		Word{Str: "长春市", Start: 0, End: 9},
-		Word{Str: "长春", Start: 9, End: 15},
-		Word{Str: "药店", Start: 15, End: 21},
+		{Str: "长春", Start: 0, End: 6},
+		{Str: "长春市", Start: 0, End: 9},
+		{Str: "长春", Start: 9, End: 15},
+		{Str: "药店", Start: 15, End: 21},
 	}
 	if !reflect.DeepEqual(wordinfos, expectedwords) {
 		t.Error()
@@ -169,7 +169,7 @@ func TestJieba(t *testing.T) {
 
 func TestNewJiebaWithContent(t *testing.T) {
 	//equals with x := NewJieba(DICT_PATH, HMM_PATH, USER_DICT_PATH)
-	x := NewJiebaWithContent()
+	x := NewJiebaWithContent("")
 	defer x.Free()
 	var s string
 	var expected string
@@ -221,10 +221,10 @@ func TestNewJiebaWithContent(t *testing.T) {
 	s = "长春市长春药店"
 	wordinfos := x.Tokenize(s, SearchMode, false)
 	expectedwords := []Word{
-		Word{Str: "长春", Start: 0, End: 6},
-		Word{Str: "长春市", Start: 0, End: 9},
-		Word{Str: "长春", Start: 9, End: 15},
-		Word{Str: "药店", Start: 15, End: 21},
+		{Str: "长春", Start: 0, End: 6},
+		{Str: "长春市", Start: 0, End: 9},
+		{Str: "长春", Start: 9, End: 15},
+		{Str: "药店", Start: 15, End: 21},
 	}
 	if !reflect.DeepEqual(wordinfos, expectedwords) {
 		t.Error()
@@ -246,9 +246,9 @@ func TestJiebaCutForSearch(t *testing.T) {
 	}
 	wordinfos := x.Tokenize(s, SearchMode, false)
 	expectedwords := []Word{
-		Word{Str: "长江", Start: 0, End: 6},
-		Word{Str: "大桥", Start: 6, End: 12},
-		Word{Str: "长江大桥", Start: 0, End: 12},
+		{Str: "长江", Start: 0, End: 6},
+		{Str: "大桥", Start: 6, End: 12},
+		{Str: "长江大桥", Start: 0, End: 12},
 	}
 	if !reflect.DeepEqual(wordinfos, expectedwords) {
 		t.Error(wordinfos, expectedwords)
@@ -256,7 +256,7 @@ func TestJiebaCutForSearch(t *testing.T) {
 }
 
 func TestJiebaCutWithContentForSearch(t *testing.T) {
-	x := NewJiebaWithContent()
+	x := NewJiebaWithContent("")
 	defer x.Free()
 	s := "长江大桥"
 	words := x.CutForSearch(s, false)
@@ -270,9 +270,9 @@ func TestJiebaCutWithContentForSearch(t *testing.T) {
 	}
 	wordinfos := x.Tokenize(s, SearchMode, false)
 	expectedwords := []Word{
-		Word{Str: "长江", Start: 0, End: 6},
-		Word{Str: "大桥", Start: 6, End: 12},
-		Word{Str: "长江大桥", Start: 0, End: 12},
+		{Str: "长江", Start: 0, End: 6},
+		{Str: "大桥", Start: 6, End: 12},
+		{Str: "长江大桥", Start: 0, End: 12},
 	}
 	if !reflect.DeepEqual(wordinfos, expectedwords) {
 		t.Error(wordinfos, expectedwords)
